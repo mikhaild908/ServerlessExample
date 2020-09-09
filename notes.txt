@@ -1,0 +1,36 @@
+https://aws.amazon.com/blogs/compute/developing-net-core-aws-lambda-functions/
+https://docs.aws.amazon.com/xray/latest/devguide/xray-daemon.html#xray-daemon-downloading
+https://docs.aws.amazon.com/xray/latest/devguide/xray-daemon-local.html
+
+dotnet new -i Amazon.Lambda.Templates
+
+dotnet new serverless.EmptyServerless -n ServerlessExample
+cd ServerlessExample
+dotnet new sln -n ServerlessExample\
+dotnet sln ServerlessExample.sln add */*/*.csproj
+
+cd test/ServerlessExample.Tests/
+dotnet test
+
+sam local generate-event apigateway aws-proxy --method GET --path document --body "" > testApiRequest.json
+
+dotnet publish -c Release
+
+sam local invoke "ServerlessExampleFunction" --event testApiRequest.json
+
+sam local start-api
+
+sam package \
+  --template-file template.yaml \
+  --output-template serverless-example.yaml \
+  --s3-bucket serverless-example-deploy
+
+sam deploy \
+   --template-file serverless-example.yaml \
+   --stack-name ServerlessExample \
+   --capabilities CAPABILITY_IAM \
+   --region us-west-2
+
+dotnet lambda invoke-function ServerlessExample -–region eu-west-2
+
+sam logs -n ServerlessExample --region us-west-2

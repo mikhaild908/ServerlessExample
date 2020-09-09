@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Sample SAM Template for ServerlessExample
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 10
+    Tracing: Active
+
+Resources:
+  ServerlessExampleFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      FunctionName: ServerlessExample
+      CodeUri: src/ServerlessExample/bin/Release/netcoreapp3.1/publish
+      Handler: ServerlessExample::ServerlessExample.Functions::Get
+      Runtime: dotnetcore3.1
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          PARAM1: VALUE
+      Events:
+        ServerlessExample:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /
+            Method: get
+
+Outputs:
+  ServerlessExampleApi:
+    Description: "API Gateway endpoint URL for Prod stage for Debugging Example function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/ServerlessExample/"
+
+  ServerlessExampleFunction:
+    Description: "Debugging Example Lambda Function ARN"
+    Value: !GetAtt ServerlessExampleFunction.Arn
+
+  ServerlessExampleFunctionIamRole:
+    Description: "Implicit IAM Role created for Debugging Example function"
+    Value: !GetAtt ServerlessExampleFunctionRole.Arn
